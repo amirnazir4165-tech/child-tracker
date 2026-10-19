@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Telemetry Sender</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; }
+        h2 { color: #333; }
+        p { font-size: 18px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Child Device Tracker</h2>
+        <p>Status: <span id="status" style="color: green; font-weight: bold;">Sending Data...</span></p>
+        <p>Battery: <span id="bat">--</span>%</p>
+        <p>Location: <span id="loc">Fetching...</span></p>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        // Aapka Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-fQDkGfv35UW0Fw2Wf4adbvENFkD1PW8",
+            authDomain: "child-99a75.firebaseapp.com",
+            databaseURL: "https://child-99a75-default-rtdb.firebaseio.com",
+            projectId: "child-99a75",
+            storageBucket: "child-99a75.firebasestorage.app",
+            messagingSenderId: "252145305070",
+            appId: "1:252145305070:web:6f360b4043670faae23aff",
+            measurementId: "G-S4LQ645DCW"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // 1. Battery Status Fetch karna
+        function updateBattery() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    let level = Math.round(battery.level * 100);
+                    document.getElementById('bat').innerText = level;
+                    sendDataToFirebase(level, null, null);
+                });
+            } else {
+                document.getElementById('bat').innerText = "Not Supported";
+            }
+        }
+
+        // 2. GPS Location Fetch karna
+        function updateLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(position => {
+                    let lat = position.coords.latitude;
+                    let lng = position.coords.longitude;
+                    document.getElementById('loc').innerText = lat.toFixed(4) + ", " + lng.toFixed(4);
+                    sendDataToFirebase(null, lat, lng);
+                }, error => {
+                    document.getElementById('loc').innerText = "Location Permission Denied";
+                }, { enableHighAccuracy: true });
+            }
+        }
+
+        // 3. Firebase par Data Update karna
+        let currentBattery = 85;
+        let currentLat = 28.6139;
+        let currentLng = 77.2090;
+
+        function sendDataToFirebase(bat, lat, lng) {
+            if (bat !== null) currentBattery = bat;
+            if (lat !== null) currentLat = lat;
+            if (lng !== null) currentLng = lng;
+
+            let now = new Date();
+            let timeString = now.toLocaleTimeString();
+
+            db.ref('child_01').set({
+                battery: currentBattery,
+                lat: currentLat,
+                lng: currentLng,
+                last_seen: timeString
+            });
+        }
+
+        // Functions Run Karein
+        updateBattery();
+        updateLocation();
+    </script>
+</body>
+</html>

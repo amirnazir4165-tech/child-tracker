@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <me
+</html>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Monitoring Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Parental Control</h2>
+        <ul>
+            <li class="active">Dashboard</li>
+            <li>Location Logs</li>
+            <li>App Usage</li>
+            <li>Settings</li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>Child Status Monitor</h1>
+            <p>Real-time Status Updates</p>
+        </header>
+
+        <div class="card-container">
+            <!-- Battery Status Card -->
+            <div class="card">
+                <h3>Battery Level</h3>
+                <p id="battery-status">Waiting for data...</p>
+            </div>
+
+            <!-- Current Location Card -->
+            <div class="card">
+                <h3>Live Location</h3>
+                <p id="location-status">Waiting for data...</p>
+            </div>
+
+            <!-- Last Update Card -->
+            <div class="card">
+                <h3>Last Seen</h3>
+                <p id="last-seen">Waiting for data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase App & Database Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+      // Screenshot se liya gaya aapka Firebase Config
+      const firebaseConfig = {
+        apiKey: "AIzaSyC-fQDkGfv35UW0Fw2Wf4adbvENFkD1PW8",
+        authDomain: "child-99a75.firebaseapp.com",
+        databaseURL: "https://child-99a75-default-rtdb.firebaseio.com",
+        projectId: "child-99a75",
+        storageBucket: "child-99a75.firebasestorage.app",
+        messagingSenderId: "252145305070",
+        appId: "1:252145305070:web:6f360b4043670faae23aff",
+        measurementId: "G-S4LQ645DCW"
+      };
+
+      // Firebase Initialize Karein
+      firebase.initializeApp(firebaseConfig);
+
+      // Realtime Database se Live Data Listen Karein
+      const db = firebase.database();
+      db.ref('child_01').on('value', (snapshot) => {
+          const data = snapshot.val();
+          if(data) {
+              document.getElementById('battery-status').innerText = (data.battery || "0") + "%";
+              document.getElementById('location-status').innerText = (data.lat || "0") + ", " + (data.lng || "0");
+              document.getElementById('last-seen').innerText = data.last_seen || "Just Now";
+          }
+      });
+    </script>
+
+</body>
+</html>
